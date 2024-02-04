@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"go-rest-webapp/models"
+	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
 
-type UserController struct{}
+type UserController struct {
+	client *mongo.Client
+}
 
-func NewUserController() *UserController {
-	return &UserController{}
+func NewUserController(c *mongo.Client) *UserController {
+	return &UserController{c}
 }
 
 func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
