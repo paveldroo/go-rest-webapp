@@ -1,20 +1,19 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
-	"go-rest-webapp/models"
+	"go-rest-webapp/controllers"
 	"log"
 	"net/http"
 )
 
 func main() {
 	r := httprouter.New()
+	uc := controllers.NewUserController()
 	r.GET("/", index)
-	r.GET("/user/:id", getUser)
-	r.POST("/user", createUser)
-	r.DELETE("/user/:id", deleteUser)
+	r.GET("/user/:id", uc.GetUser)
+	r.POST("/user", uc.CreateUser)
+	r.DELETE("/user/:id", uc.DeleteUser)
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
 
@@ -32,37 +31,4 @@ func index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html; charset=utf8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(s))
-}
-
-func getUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	u := models.User{
-		Name:   "Jonny",
-		Gender: "male",
-		Age:    28,
-		Id:     p.ByName("id"),
-	}
-
-	uj, _ := json.Marshal(u)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%s\n", uj)
-
-}
-
-func createUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	u := models.User{}
-
-	_ = json.NewDecoder(r.Body).Decode(&u)
-
-	u.Id = "007"
-	uj, _ := json.Marshal(u)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "%s\n", uj)
-}
-
-func deleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	// We will delete user here
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "User was deleted!")
 }
